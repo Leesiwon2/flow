@@ -26,13 +26,16 @@
     				<span>커스텀 확장자</span>
     			</div>
     			<div class="wrap_data">
-    				<input type="text" placeholder="확장자 입력" maxLength=20 th:extension><button>+추가</button>
-    				<div class="custom">
-    				</div>
+    				<form action="/extension/add" th:object="${extension}" method="post">
+    					<input type="text" th:field="*{extensionName}" placeholder="확장자 입력" maxLength=20 />
+    					<!-- <button th:onclick="|javascript:insertExtension('${extension.name}')|">+추가</button> -->
+    					<button type="submit">+추가</button> 
+    					<div class="custom">
+    					</div>
+    				</form>
     			</div>	
     		</div>
-    		
-    		
     	</div>
     </body>
     </html>
+ 

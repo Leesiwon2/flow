@@ -1,0 +1,4 @@
+create table IF NOT EXISTS EXTENSION(
+  extensionName VARCHAR(20) PRIMARY KEY,
+  CHECK_YN VARCHAR(1)
+);
