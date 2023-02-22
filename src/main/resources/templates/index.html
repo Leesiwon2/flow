@@ -1,9 +1,10 @@
-	<!DOCTYPE HTML>
-    <html xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
     <head>
         <title>파일 확장자 차단</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
          <link rel="stylesheet" href="common.css">
+         <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
     </head>
     <body>
     	<div class="wrap">
@@ -26,16 +27,31 @@
     				<span>커스텀 확장자</span>
     			</div>
     			<div class="wrap_data">
-    				<form action="/extension/add" th:object="${extension}" method="post">
+    				<form th:action="@{/extension/add}" th:object="${extension}" method="post">
     					<input type="text" th:field="*{extensionName}" placeholder="확장자 입력" maxLength=20 />
     					<!-- <button th:onclick="|javascript:insertExtension('${extension.name}')|">+추가</button> -->
     					<button type="submit">+추가</button> 
-    					<div class="custom">
-    					</div>
+    				
     				</form>
+    						<div class="custom">
+    						<div th:if="${customExtension} != null">
+    							<div th:each="ex : ${customExtension}" style="float:left;width: fit-content; height: 18px; border: 1px solid #535353; margin: 5px; border-radius: 5px;">
+    								<span th:text="${ex.extensionName}" style="margin-left: 8px;margin-right: 8px;"></span>
+    								<i th:onclick="||" style="margin-right:8px;cursor: pointer;">X</i>
+    							</div>
+    						</div> 
+    							
+		
+
+    					</div>
     			</div>	
     		</div>
     	</div>
-    </body>
-    </html>
- 
+	</body>
+</html>
+<script type="text/javascript">
+$( document ).ready(function() {
+    console.log( "ready!" );
+});
+
+</script>
