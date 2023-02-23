@@ -12,14 +12,9 @@
     			<div class="wrap_header">
     				<span>고정 확장자</span>
     			</div>
-    			<div class="wrap_data">
-    				<input type="checkbox" id="bat"><label class="lbl" for="bat"><span>bat</span></label>
-    				<input type="checkbox" id="cmd"><label class="lbl" for="cmd"><span>cmd</span></label>
-    				<input type="checkbox" id="com"><label class="lbl" for="com"><span>com</span></label>
-    				<input type="checkbox" id="cpl"><label class="lbl" for="cpl"><span>cpl</span></label>
-    				<input type="checkbox" id="exe"><label class="lbl" for="exe"><span>exe</span></label>
-    				<input type="checkbox" id="scr"><label class="lbl" for="scr"><span>scr</span></label>
-    				<input type="checkbox" id="js"><label class="lbl" for="js"><span>js</span></label>
+    			<div class="wrap_data" th:each ="fixExten : ${fix}">
+    				<input type="checkbox" th:field="*{fix}"th:checked="false" th:value="${fixExten.key}" th:onclick="updateFix(this)">
+    				<label th:for="${#ids.seq('fix')}" th:text="${fixExten.value}" class="lbl"><span></span></label>
     			</div>
     		</div>
     		<div class="wrap_tbl">
@@ -29,15 +24,15 @@
     			<div class="wrap_data">
     				<form th:action="@{/extension/add}" th:object="${extension}" method="post">
     					<input type="text" th:field="*{extensionName}" placeholder="확장자 입력" maxLength=20 />
-    					<!-- <button th:onclick="|javascript:insertExtension('${extension.name}')|">+추가</button> -->
     					<button type="submit">+추가</button> 
     				
     				</form>
-    						<div class="custom">
+    						<div class="custom" id="custom">
+    						<div id="extenCnt" style="margin: 2px 5px;"><span th:text="|${extenCount}/200|"></span></div>
     						<div th:if="${customExtension} != null">
     							<div th:each="ex : ${customExtension}" style="float:left;width: fit-content; height: 18px; border: 1px solid #535353; margin: 5px; border-radius: 5px;">
     								<span th:text="${ex.extensionName}" style="margin-left: 8px;margin-right: 8px;"></span>
-    								<i th:onclick="||" style="margin-right:8px;cursor: pointer;">X</i>
+    								<i th:onclick="deleteExtension([[${ex.extensionName}]])" style="margin-right:8px;cursor: pointer;">X</i>
     							</div>
     						</div> 
     							
@@ -52,6 +47,40 @@
 <script type="text/javascript">
 $( document ).ready(function() {
     console.log( "ready!" );
+    $('#extensionName').focus();
 });
+
+function deleteExtension(name) {
+	$.ajax({
+		url: "/extension/delete",
+		data: "name=" + name,
+		type: "GET",
+		success : function(data){
+			alert('커스텀 확장자 '+name+'(이)가 삭제되었습니다.');
+		    console.log(data);
+		    $('#custom').replaceWith(data);
+		},
+		error : function(){
+			alert("에러")		
+		}
+	});
+}
+
+function updateFix(data){
+	console.log(data.id);
+	var chk = $('input[id="'+name+'"]');
+	console.log(chk.is(":checked"));
+	$.ajax({
+		url: "/fix/update",
+		data: name,
+		type: "POST",
+		success : function(data){
+			
+		},
+		error : function(){
+			alert("에러")		
+		}
+	});
+}
 
 </script>

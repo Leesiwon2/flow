@@ -22,8 +22,17 @@ public class ExtensionRepository {
 		em.persist(exten);
 	}
 	
+	public void delete(String name) {
+		Extension exten = em.find(Extension.class, name);
+		em.remove(exten);
+	}
+	
 	public List<Extension> findAll() {
 		return em.createQuery("select m from Extension m", Extension.class).getResultList();
+	}
+	
+	public String findCount() {
+		return String.valueOf(em.createNativeQuery("select COUNT(*) from Extension").getSingleResult()) ;
 	}
 
 	public List<Extension> findByName(String name) {

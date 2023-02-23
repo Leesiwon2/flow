@@ -1,7 +1,9 @@
 package com.example.flow.Controller;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,9 +11,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.flow.Entity.Extension;
 import com.example.flow.Repo.ExtensionRepository;
@@ -25,31 +29,36 @@ public class ExtensionController {
 	
 	private final ExtensionRepository extensionRepo;
 	
+	@ModelAttribute("fix")
+	public Map<String, String> fix(Model model) {
+		Map<String, String> fix = new LinkedHashMap<>();
+		
+		fix.put("bat", "bat");
+		fix.put("cmd", "cmd");
+		fix.put("com", "com");
+		fix.put("cpl", "cpl");
+		fix.put("exe", "exe");
+		fix.put("scr", "scr");
+		fix.put("js", "js");
+		
+		return fix;
+	}
 	@GetMapping("")
 	public String index(Model model) {
+		
 		List<Extension> extension = new ArrayList<>();
 		if(!extensionRepo.findAll().isEmpty()) {
-			System.out.println("뭔가 값이 있어");
 			extension.addAll(extensionRepo.findAll());
-
 			model.addAttribute("customExtension",extension);
-		}else {
-
-			
 		}
 		model.addAttribute("extension",new Extension());
-//		for(int i=0; i<extensionRepo.findAll().size(); i++) {
-//			String name = extensionRepo.findAll().get(i).getExtensionName();
-//			extension.add(new Extension(name,"N"));
-//		}
-		System.out.println("여기까지 가능");
-		
+		model.addAttribute("extenCount",extensionRepo.findCount());
 		
 		return "index";
 	}
 	
 	@PostMapping("extension/add")
-	public String addExtension(@Validated Extension extension,BindingResult bd) {
+	public String addExtension(@Validated Extension extension,BindingResult bd, Model model) {
 		if(bd.hasErrors()) {
 			List<ObjectError> list =  bd.getAllErrors();
             for(ObjectError e : list) {
@@ -57,21 +66,19 @@ public class ExtensionController {
             }
 		}
 		extensionRepo.save(extension);
-		
-		return "redirect:/";
+		model.addAttribute("extenCount",extensionRepo.findCount());
+		return "redirect:/ ";
 	}
 	
-	public String deleteExtension(@Validated String name,BindingResult bd) {
-		System.out.println("ddddd");
-		if(bd.hasErrors()) {
-			List<ObjectError> list =  bd.getAllErrors();
-            for(ObjectError e : list) {
-                 System.out.println(e.getDefaultMessage());
-            }
+	@GetMapping("extension/delete")
+	public String deleteExtension(@RequestParam String name,Model model) {
+		extensionRepo.delete(name);
+		List<Extension> extension = new ArrayList<>();
+		if(!extensionRepo.findAll().isEmpty()) {
+			extension.addAll(extensionRepo.findAll());
+
+			model.addAttribute("customExtension",extension);
 		}
-		System.out.println(":::::"+name);
-		//extensionRepo.save(extension);
-		
-		return "redirect:/";
+		return "index :: #custom";
 	}
 }
