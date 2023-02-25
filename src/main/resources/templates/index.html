@@ -12,9 +12,9 @@
     			<div class="wrap_header">
     				<span>고정 확장자</span>
     			</div>
-    			<div class="wrap_data" th:each ="fixExten : ${fix}">
-    				<input type="checkbox" th:field="*{fix}"th:checked="false" th:value="${fixExten.key}" th:onclick="updateFix(this)">
-    				<label th:for="${#ids.seq('fix')}" th:text="${fixExten.value}" class="lbl"><span></span></label>
+    			<div class="wrap_data" id="fixExtension" th:each ="fixExten : ${fix}">
+    				<input type="checkbox" th:field="*{fix}" th:value="${fixExten.key}"  th:onclick="updateFix(this)">
+    				<label th:for="${#ids.seq('fix')}" th:text="${fixExten.key}" class="lbl"><span></span></label>
     			</div>
     		</div>
     		<div class="wrap_tbl">
@@ -25,20 +25,17 @@
     				<form th:action="@{/extension/add}" th:object="${extension}" method="post">
     					<input type="text" th:field="*{extensionName}" placeholder="확장자 입력" maxLength=20 />
     					<button type="submit">+추가</button> 
-    				
+    					<span id="result" th:text=${result}></span>
     				</form>
-    						<div class="custom" id="custom">
-    						<div id="extenCnt" style="margin: 2px 5px;"><span th:text="|${extenCount}/200|"></span></div>
-    						<div th:if="${customExtension} != null">
-    							<div th:each="ex : ${customExtension}" style="float:left;width: fit-content; height: 18px; border: 1px solid #535353; margin: 5px; border-radius: 5px;">
-    								<span th:text="${ex.extensionName}" style="margin-left: 8px;margin-right: 8px;"></span>
-    								<i th:onclick="deleteExtension([[${ex.extensionName}]])" style="margin-right:8px;cursor: pointer;">X</i>
-    							</div>
-    						</div> 
-    							
-		
-
-    					</div>
+    				<div class="custom" id="custom" style="overflow:scroll;">
+    					<div id="extenCnt" style="margin: 2px 5px;"><span th:text="|${extenCount}/200|"></span></div>
+    					<div th:if="${customExtension} != null">
+    						<div th:each="ex : ${customExtension}" style="float:left;width: fit-content; height: 18px; border: 1px solid #535353; margin: 5px; border-radius: 5px;">
+    							<span th:text="${ex.extensionName}" style="margin-left: 8px;margin-right: 8px;"></span>
+    							<i th:onclick="deleteExtension([[${ex.extensionName}]])" style="margin-right:8px;cursor: pointer;">X</i>
+    						</div>
+    					</div> 
+    				</div>
     			</div>	
     		</div>
     	</div>
@@ -46,8 +43,24 @@
 </html>
 <script type="text/javascript">
 $( document ).ready(function() {
-    console.log( "ready!" );
+    $.ajax({
+    	url: "/fix",
+    	data: "",
+    	type: "POST",
+    	success : function(data){
+    		for(var [key, value] of Object.entries(data)){
+    			if(value==true) {
+    				$('input[value="'+key+'"]').attr("checked","checked");
+    			}
+    			
+    		}
+    	},
+    	error : function(){
+    		alert("에러")		
+    	}
+    });
     $('#extensionName').focus();
+    
 });
 
 function deleteExtension(name) {
@@ -57,30 +70,38 @@ function deleteExtension(name) {
 		type: "GET",
 		success : function(data){
 			alert('커스텀 확장자 '+name+'(이)가 삭제되었습니다.');
-		    console.log(data);
 		    $('#custom').replaceWith(data);
 		},
 		error : function(){
-			alert("에러")		
+			
 		}
 	});
 }
 
 function updateFix(data){
-	console.log(data.id);
-	var chk = $('input[id="'+name+'"]');
-	console.log(chk.is(":checked"));
+	var chk = $('input[id="'+data.id+'"]');
+	var prmt = {};
+	prmt.name = data.value;
+	prmt.checkYn = chk.is(":checked");
 	$.ajax({
 		url: "/fix/update",
-		data: name,
+		data: prmt,
 		type: "POST",
 		success : function(data){
-			
 		},
 		error : function(){
-			alert("에러")		
 		}
 	});
+    $.ajax({
+    	url: "/fix",
+    	data: "",
+    	type: "POST",
+    	success : function(data){
+    	},
+    	error : function(){
+    		
+    	}
+    });
 }
 
 </script>

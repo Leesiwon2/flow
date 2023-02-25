@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.flow.Entity.Extension;
+import com.example.flow.Entity.FixExtension;
 import com.example.flow.Repo.ExtensionRepository;
+import com.example.flow.Repo.FixExtensionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,32 +31,36 @@ import lombok.RequiredArgsConstructor;
 public class ExtensionController {
 	
 	private final ExtensionRepository extensionRepo;
-	
-	@ModelAttribute("fix")
-	public Map<String, String> fix(Model model) {
-		Map<String, String> fix = new LinkedHashMap<>();
-		
-		fix.put("bat", "bat");
-		fix.put("cmd", "cmd");
-		fix.put("com", "com");
-		fix.put("cpl", "cpl");
-		fix.put("exe", "exe");
-		fix.put("scr", "scr");
-		fix.put("js", "js");
-		
-		return fix;
-	}
+	private final FixExtensionRepository fixExtensionRepo;
+	String rslt = null;
 	@GetMapping("")
 	public String index(Model model) {
-		
 		List<Extension> extension = new ArrayList<>();
+		List<FixExtension> fixExtension = fixExtensionRepo.findAllFix();
+		Map<String, Boolean> fix = new LinkedHashMap<>();
+		
+		for(var i=0; i< fixExtension.size(); i++) {
+			Boolean checkYn = false;
+			if((fixExtension.get(i).getCheck_yn().toString()).equals("true")) {
+				checkYn = true;
+				
+			}
+			fix.put(fixExtension.get(i).getExtensionName().toString(),checkYn);
+		}
 		if(!extensionRepo.findAll().isEmpty()) {
 			extension.addAll(extensionRepo.findAll());
 			model.addAttribute("customExtension",extension);
 		}
 		model.addAttribute("extension",new Extension());
 		model.addAttribute("extenCount",extensionRepo.findCount());
-		
+		model.addAttribute("fix", fix);
+		if(Integer.parseInt(extensionRepo.findCount()) > 200) {
+			model.addAttribute("result","200개까지 입력할 수 있습니다. ");
+		} 
+		if (rslt !=null) {
+			model.addAttribute("result",rslt);
+			rslt = null;
+		}
 		return "index";
 	}
 	
@@ -65,7 +72,21 @@ public class ExtensionController {
                  System.out.println(e.getDefaultMessage());
             }
 		}
-		extensionRepo.save(extension);
+		
+		if(extension.getExtensionName().strip() =="") {
+			rslt="공백값입니다. ";
+			return "redirect:/ ";
+		}else {
+			if(extensionRepo.findByName(extension.getExtensionName()).equals("exist")) {
+				rslt ="이미 존재하는 확장자입니다. ";
+			}else {
+				if(Integer.parseInt(extensionRepo.findCount()) > 199) {
+					return "redirect:/ ";
+				} else {
+					extensionRepo.save(extension);	
+				}
+			}
+		}
 		model.addAttribute("extenCount",extensionRepo.findCount());
 		return "redirect:/ ";
 	}
@@ -79,6 +100,7 @@ public class ExtensionController {
 
 			model.addAttribute("customExtension",extension);
 		}
+		model.addAttribute("extenCount",extensionRepo.findCount());
 		return "index :: #custom";
 	}
 }

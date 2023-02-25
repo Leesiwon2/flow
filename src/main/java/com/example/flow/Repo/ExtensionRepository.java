@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.flow.Entity.Extension;
+import com.example.flow.Entity.FixExtension;
 
 
 @Transactional
@@ -34,10 +35,16 @@ public class ExtensionRepository {
 	public String findCount() {
 		return String.valueOf(em.createNativeQuery("select COUNT(*) from Extension").getSingleResult()) ;
 	}
-
-	public List<Extension> findByName(String name) {
-		return em.createQuery("select extensionName from Extension m where m.extensionName = :name", Extension.class)
-				.setParameter("name", name)
-				.getResultList();
+	
+	public String findByName(String name) {
+		Extension extension = new Extension(); // 조회할 타입과 식별자 PK값
+		if(em.find(Extension.class , name)!= null) {
+			return "exist";
+		}else {
+			return "N";
+		}
+		
+		
 	}
+
 }
